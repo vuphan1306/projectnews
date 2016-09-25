@@ -22,3 +22,4 @@ def home(request):
 def logout(request):
     auth_logout(request)
     return redirect('/')
+#
