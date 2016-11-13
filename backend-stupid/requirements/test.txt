@@ -1,0 +1,4 @@
+# Test dependencies go here.
+
+flake8==3.0.2
+django-test-plus==1.0.11

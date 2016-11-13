@@ -1,0 +1,1 @@
+docker-compose -f dev.yml build

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<style type="text/css">
+		.container{
+			width:600px;
+			margin: auto;
+			border: 1px solid lightgray;
+			background: lightgray;
+			padding: 50px;
+		}
+	
+		.bodyemail{
+			width:500px;
+			margin: auto;
+			border: 1px solid white;
+			background: white;
+			font-size: 32px;
+			line-height: 36px;
+			padding: 0 0 0 0;
+			font-family: helvetica neue,helvetica,arial,sans-serif;
+			font-weight: bold;
+			color: #444444;
+			max-width: 510px;
+			text-align: center;
+		}
+	
+
+		a{
+			padding: 5px;
+			border: 1px solid red;
+			border-radius: 3px;
+			background: red;
+			color: white;
+			font-weight: bold;
+			font-size: 20px;
+			text-decoration: none;
+			text-align: center;
+		}
+
+
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="bodyemail">
+			<p>Your email is {{email}}</p1>
+			<p>Before we <span style="color:red">get started...</span></p>
+			<p style="font-weight:normal; font-size:22px">Please take a second to make sure we’ve got your email right.</p>
+			<a href="{{confirmlink}}">Confirm your email</a>
+			<p>Thanks for your patience!</p>
+		</div>
+	</div>
+</body>
+</html>
