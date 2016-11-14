@@ -100,8 +100,7 @@ Category
   Create_category: POST: api_url/category/create/
     Request params: Authorization: access_token.
       {
-        "name": "Danh muc thu 100",
-        "description": "DM 100"
+        "name": "Danh muc thu 100"
       }
     Response:
       {
@@ -180,6 +179,16 @@ Category
 
 Article
 {
+  Search_article: GET: api_url/article/article_search/?q='abcdef'&limit=5&page=2
+    Request params: 
+      None
+    Response:
+      {
+        "error": {
+          "message": "Sorry, no results on that page.",
+          "code": 406
+        }
+      }
   Create_article: POST: api_url/article/create/
     Request params: Authorization: access_token.
       {
@@ -263,6 +272,119 @@ Article
         "name": "abc xyz",
         "user_avatar": ""
       }
+    }
+  Get top news article: GET: api_url/article/get_top_news_by_category/?id=1&limit=2
+    Request params: Need header Authorization: access_token.
+    Request params:
+      None
+    Response:
+    {
+      "meta": {
+        "limit": 1,
+        "next": "/api/v1/article/?id=1&offset=1&limit=1",
+        "offset": 0,
+        "previous": null,
+        "total_count": 2
+      },
+      "objects": [
+        {
+          "comments": {
+            "lastest_comment": {
+              "created": "2016-11-13T09:05:34.790648",
+              "id": 26,
+              "text": "ghiklmn",
+              "user": {
+                "id": 7,
+                "name": "abc xyz",
+                "user_avatar": ""
+              }
+            },
+            "total_comments": 15
+          },
+          "content": "Spectacular new observations of vast pillar-like structures within the Carina Nebula have been made using the MUSE instrument on ESO's Very Large Telescope. The different pillars analysed by an international team seem to be pillars of destruction -- in contrast to the name of the iconic Pillars of Creation in the Eagle Nebula, which are of similar nature.The spires and pillars in the new images of the Carina Nebula are vast clouds of dust and gas within a hub of star formation about 7500 light-years away. The pillars in the nebula were observed by a team led by Anna McLeod, a PhD student at ESO, using the MUSE instrument on ESO's Very Large Telescope.",
+          "created": "2016-11-14T08:40:56.492962",
+          "date_created": "2016-11-14T08:40:56.493060",
+          "date_updated": "2016-11-14T08:40:56.493072",
+          "description": "Spectacular new observations of vast pillar-like structures within the Carina Nebula have been made using the MUSE instrument on ESO's Very Large Telescope. The different pillars analysed by an international team seem to be pillars of destruction -- in contrast to the name of the iconic Pillars of Creation in the Eagle Nebula, which are of similar nature.",
+          "display_order": 0,
+          "id": 5,
+          "modified": "2016-11-14T08:40:56.492993",
+          "resource_uri": "/api/v1/article/5/",
+          "status_code": 1,
+          "title": "Pillars of cosmic destruction: Colorful Carina Nebula blasted by brilliant nearby stars",
+          "user": 7
+        }
+      ]
+    }
+  Get top news article in category: GET: api_url/article/get_top_news/?limit=2&offset=2
+    Request params: Need header Authorization: access_token.
+    Request params:
+      None
+    Response:
+    {
+      "meta": {
+        "limit": 2,
+        "next": null,
+        "offset": 2,
+        "previous": "/api/v1/article/?limit=2&offset=0",
+        "total_count": 4
+      },
+      "objects": [
+        {
+          "comments": {
+            "lastest_comment": {
+              "created": "2016-11-13T09:05:34.790648",
+              "id": 26,
+              "text": "ghiklmn",
+              "user": {
+                "id": 7,
+                "name": "abc xyz",
+                "user_avatar": ""
+              }
+            },
+            "total_comments": 15
+          },
+          "content": "Noi dung bai viet moi",
+          "created": "2016-11-14T04:26:57.504797",
+          "date_created": "2016-11-14T04:26:57.504871",
+          "date_updated": "2016-11-14T04:26:57.504882",
+          "description": "abc",
+          "display_order": 0,
+          "id": 3,
+          "modified": "2016-11-14T04:26:57.504820",
+          "resource_uri": "/api/v1/article/3/",
+          "status_code": 1,
+          "title": "Day la title2",
+          "user": 7
+        },
+        {
+          "comments": {
+            "lastest_comment": {
+              "created": "2016-11-13T09:05:34.790648",
+              "id": 26,
+              "text": "ghiklmn",
+              "user": {
+                "id": 7,
+                "name": "abc xyz",
+                "user_avatar": ""
+              }
+            },
+            "total_comments": 15
+          },
+          "content": "Noi dung bai viet update",
+          "created": "2016-11-06T06:28:05.909301",
+          "date_created": "2016-11-06T06:28:05.909371",
+          "date_updated": "2016-11-13T09:05:34.776397",
+          "description": "abc",
+          "display_order": 0,
+          "id": 1,
+          "modified": "2016-11-13T09:05:34.776379",
+          "resource_uri": "/api/v1/article/1/",
+          "status_code": 1,
+          "title": "Day la title update",
+          "user": 7
+        }
+      ]
     }
 }
 

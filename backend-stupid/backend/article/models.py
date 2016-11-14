@@ -18,6 +18,7 @@ class Article(TimeStampedModel):
     content = models.TextField(blank=True, null=True)
     description = models.TextField(null=True, blank=True)
     display_order = models.IntegerField(default=0)
+    image_url = models.CharField(max_length=100, default='assets/img/news/h1.jpg')
     status_code = models.IntegerField(default=0, null=False)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     create_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)

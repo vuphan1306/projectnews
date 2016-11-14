@@ -8,6 +8,7 @@ Local settings
 - Add django-extensions as app
 '''
 
+
 from .common import *  # noqa
 
 # DEBUG
@@ -39,8 +40,21 @@ CACHES = {
 
 # django-debug-toolbar
 # ------------------------------------------------------------------------------
-MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
-INSTALLED_APPS += ('debug_toolbar', )
+# MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+INSTALLED_APPS += ('debug_toolbar', 'corsheaders',)
+
+SECURITY_MIDDLEWARE = (
+    'djangosecure.middleware.SecurityMiddleware',
+)
+
+CORS_MIDDLEWARE = (
+    'corsheaders.middleware.CorsMiddleware',
+)
+
+MIDDLEWARE_CLASSES = SECURITY_MIDDLEWARE + CORS_MIDDLEWARE + MIDDLEWARE_CLASSES
+
+CORS_URLS_REGEX = r'^/api/.*$'
+CORS_ORIGIN_ALLOW_ALL = True
 
 INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
 

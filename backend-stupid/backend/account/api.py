@@ -434,11 +434,16 @@ class AuthenticationResource(ModelResource):
                         access_token=access_token)
                 else:
                     raise CustomBadRequest(error_type='UNAUTHORIZED', error_message='Your email is not verified')
+        #         else:
+        #             return self.create_response(request=request, data='email sai')
             else:
                 raise CustomBadRequest(error_type='UNAUTHORIZED', error_message='Your password is not correct')
+        #     else:
+        #         return self.create_response(request=request, data='password sai')
         except User.DoesNotExist:
             raise CustomBadRequest(error_type='UNAUTHORIZED',
                                    error_message='Your email address is not registered. Please register')
+        #     return self.create_response(request=request, data='email chua dang ky')
 
     def sign_up_by_email(self, request, **kwargs):
         """Sign up by email handler."""
@@ -568,12 +573,12 @@ class AuthenticationResource(ModelResource):
             'first_name': user.first_name,
             'last_name': user.last_name
         }
-        try:
-            bundle.data['user']['is_seller'] = False
-            Seller.objects.get(user=user)
-            bundle.data['user']['is_seller'] = True
-        except Seller.DoesNotExist:
-            pass
+        # try:
+        #     bundle.data['user']['is_seller'] = False
+        #     Seller.objects.get(user=user)
+        #     bundle.data['user']['is_seller'] = True
+        # except Seller.DoesNotExist:
+        #     pass
         return self.create_response(request, bundle)
 
     def logout(self, request, access_token, **kwargs):

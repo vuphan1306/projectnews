@@ -13,6 +13,7 @@ from __future__ import absolute_import, unicode_literals
 import environ
 from os.path import abspath, basename, dirname
 from sys import path
+import os
 
 ROOT_DIR = environ.Path(__file__) - 3  # (/a/b/myfile.py - 3 = /)
 APPS_DIR = ROOT_DIR.path('backend')
@@ -248,3 +249,13 @@ BROKER_URL = env("CELERY_BROKER_URL", default='django://')
 ADMIN_URL = r'^admin/'
 
 # Your common stuff: Below this line define 3rd party library settings
+
+# Your common stuff: Below this line define 3rd party library settings
+# HAYSTACK setting
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
+    },
+}
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'

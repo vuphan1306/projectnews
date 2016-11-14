@@ -11,6 +11,8 @@ from tastypie.utils import trailing_slash, timezone
 from ..comment.api import CommentResource
 from ..commons.datetime_utils import convert_utc_time_to_local_time
 from .models import Article
+from ..category.models import Category
+from haystack.query import SearchQuerySet
 from django.conf.urls import url
 
 
@@ -35,6 +37,8 @@ class ArticleValidation(Validation):
 class ArticleResource(ModelResource):
     """Category resource."""
 
+    ARTICLE = 'Article'
+
     class Meta(object):
         """CategoryResource Meta data."""
 
@@ -52,11 +56,14 @@ class ArticleResource(ModelResource):
     def dehydrate(self, bundle):
         """Tastypie dehydrate method."""
         article = Article.objects.get(id=bundle.obj.id) # noqa
-        if article.user is not None:
-            bundle.data['user'] = article.user.id
+        if article.create_by is not None:
+            bundle.data['user'] = article.create_by.id
         else:
             bundle.data['user'] = ''
-
+        if article.category is not None:
+            bundle.data['category'] = article.category.id
+        else:
+            bundle.data['category'] = ''
         comment_resource = CommentResource()
         bundle.data['comments'] = comment_resource.get_last_comment(object_content=bundle.obj, request=bundle.request)
 
@@ -73,10 +80,18 @@ class ArticleResource(ModelResource):
                 self.wrap_view('update'), name="api_update_article"),
             url(r"^(?P<resource_name>%s)/add_comment%s$" % (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('add_comment'), name="api_add_comment"),
+            url(r"^(?P<resource_name>%s)/get_top_news_by_category%s$" % (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('get_top_news_by_category'), name="api_get_top_news_by_category"),
+            url(r"^(?P<resource_name>%s)/get_top_news%s$" % (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('get_top_news'), name="api_get_top_news"),
             url(r"^(?P<resource_name>%s)/get_all%s$" % (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('get_all'), name="api_get_all"),
             url(r"^(?P<resource_name>%s)/delete%s$" % (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('delete'), name="api_delete"),
+            url(r"^(?P<resource_name>%s)/article_search%s$" % (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('article_search'), name="api_article_search"),
+            url(r"^(?P<resource_name>%s)/get_detail_by_article_id%s$" % (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('get_detail_by_article_id'), name="api_get_detail_by_article_id"),
         ]
 
     def create(self, request, **kwargs):
@@ -95,6 +110,7 @@ class ArticleResource(ModelResource):
         display_order = data.get('display_order', 0)
         status_code = data.get('status_code', 1)
         user = request.user.id
+        image_url = data.get('image_url', 'assets/img/news/h1.jpg')
         print('user', user)
         try:
             Article.objects.create(
@@ -105,6 +121,7 @@ class ArticleResource(ModelResource):
                 display_order=display_order,
                 create_by_id=user,
                 status_code=status_code,
+                image_url=image_url,
                 created=timezone.now(),
                 modified=timezone.now())
             return self.create_response(request, {"Success": True})
@@ -128,6 +145,7 @@ class ArticleResource(ModelResource):
         status_code = data.get('status_code', 1)
         user = request.user.id
         article_id = data.get('id', None)
+        image_url = data.get('image_url', 'assets/img/news/h1.jpg')
         try:
             obj = Article.objects.get(id=article_id)
             obj.title = title
@@ -137,6 +155,7 @@ class ArticleResource(ModelResource):
             obj.display_order = display_order
             obj.status_code = status_code
             obj.create_by_id = user
+            obj.image_url = image_url
             obj.save()
             return self.create_response(request, {'Update success': True})
         except User.DoesNotExist:
@@ -157,6 +176,54 @@ class ArticleResource(ModelResource):
         for article in parent_objs:
             self.add_info(request, bundle.data['objects'], article)
         return self.create_response(request, bundle)
+
+    def get_detail_by_article_id(self, request, **kwargs):
+        """Provide api to get top news article of a category with id."""
+        self.method_check(request, allowed=['get'])
+        self.throttle_check(request)
+        article_id = request.GET.get('id', None)
+        if article_id is not None:
+            try:
+                # Get question with this id.
+                article = Article.objects.get(pk=article_id)
+                articles = Article.objects.filter(
+                    id=article.id)
+
+                return self.paginator(request, articles)
+            except Category.DoesNotExist:
+                raise CustomBadRequest(error_type="INVALID_DATA", error_message='Category does not exist!')
+        else:
+            raise CustomBadRequest(error_type="INVALID_DATA", error_message='You must enter id of category!')
+
+    def get_top_news_by_category(self, request, **kwargs):
+        """Provide api to get top news article of a category with id."""
+        self.method_check(request, allowed=['get'])
+        self.throttle_check(request)
+        category_id = request.GET.get('id', None)
+        if category_id is not None:
+            try:
+                # Get question with this id.
+                category = Category.objects.get(pk=category_id)
+                articles = Article.objects.filter(
+                    category=category.id)
+
+                return self.paginator(request, articles)
+            except Category.DoesNotExist:
+                raise CustomBadRequest(error_type="INVALID_DATA", error_message='Category does not exist!')
+        else:
+            raise CustomBadRequest(error_type="INVALID_DATA", error_message='You must enter id of category!')
+
+    def get_top_news(self, request, **kwargs):
+        """Provide api to get top news article of a category with id."""
+        self.method_check(request, allowed=['get'])
+        self.throttle_check(request)
+        try:
+            # Get question with this id.
+            articles = Article.objects.all()
+
+            return self.paginator(request, articles)
+        except Category.DoesNotExist:
+            raise CustomBadRequest(error_type="INVALID_DATA", error_message='Category does not exist!')
 
     def delete(self, request, **kwargs):
         """Provide api to delete category."""
@@ -209,6 +276,69 @@ class ArticleResource(ModelResource):
             'category_id': article.category_id,
             'create_by_id': article.create_by_id,
             'status_code': article.status_code,
-            'display_order': article.display_order
+            'display_order': article.display_order,
+            'image_url': article.image_url
         }
         list_data.append(data)
+
+    def paginator(self, request, objects, **kwargs):
+        """Helper function to paginator result list."""
+        paginator = self._meta.paginator_class(
+            request.GET, objects, resource_uri=self.get_resource_uri() + 'get_top_news_by_category',
+            limit=self._meta.limit, max_limit=self._meta.max_limit,
+            collection_name=self._meta.collection_name)
+        to_be_serialized = paginator.page()
+
+        # Dehydrate the bundles in preparation for serialization.
+        bundles = [
+            self.full_dehydrate(self.build_bundle(obj=obj, request=request), for_list=True)
+            for obj in to_be_serialized[self._meta.collection_name]
+        ]
+
+        to_be_serialized[self._meta.collection_name] = bundles
+        to_be_serialized = self.alter_list_data_to_serialize(request, to_be_serialized)
+        return self.create_response(request, to_be_serialized)
+
+    def article_search(self, request, **kwargs):
+        """Search api."""
+        self.method_check(request, allowed=['get'])
+        self._meta.authentication.is_authenticated(request)
+        self.throttle_check(request)
+
+        q = str(request.GET.get('q', ''))
+
+        sqs = SearchQuerySet().models(Article).load_all().filter(content=q, product_type=self.ARTICLE)
+
+        return self.search_paginator(request, sqs)
+
+    def search_paginator(self, request, sqs):
+        """Helper function to paginator results."""
+        from django.core.paginator import Paginator
+        # Do the query.
+        page_number = int(request.GET.get('page', 1))
+        limit = int(request.GET.get('limit', 20))
+        paginator = Paginator(sqs, limit)
+
+        try:
+            page = paginator.page(page_number)
+        except Exception:
+            raise CustomBadRequest(error_type='INVALID_DATA', error_message='Sorry, no results on that page.')
+
+        objects = []
+
+        for result in page.object_list:
+            bundle = self.build_bundle(obj=result.object, request=request)
+            bundle = self.full_dehydrate(bundle)
+            objects.append(bundle)
+
+        object_list = {
+            'objects': objects,
+            'meta': {
+                'total': paginator.count,
+                'page': page_number,
+                'limit': limit
+            }
+        }
+
+        self.log_throttled_access(request)
+        return self.create_response(request, object_list)

@@ -66,6 +66,8 @@ class CategoryResource(ModelResource):
                 self.wrap_view('get_all'), name="api_get_all"),
             url(r"^(?P<resource_name>%s)/delete%s$" % (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('delete'), name="api_delete"),
+            url(r"^(?P<resource_name>%s)/get_category_only%s$" % (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('get_category_only'), name="api_get_category_only"),
         ]
 
     def create(self, request, **kwargs):
@@ -134,6 +136,37 @@ class CategoryResource(ModelResource):
         for category in parent_objs:
             self.add_info(request, bundle.data['objects'], category)
         return self.create_response(request, bundle)
+
+    def get_category_only(self, request, **kwargs):
+        """Provide api to get all styles with specify organize."""
+        # self.method_check(request, allowed=['get'])
+        # self.throttle_check(request)
+        # category = Category.objects.all().order_by('display_order')
+        # bundle = category
+        # return self.create_response(request, bundle)
+        self.method_check(request, allowed=['get'])
+        self.throttle_check(request)
+        category_id = request.GET.get('id', None)
+        parent_objs = Category.objects.filter(id=category_id).order_by('display_order')
+        bundle = self.build_bundle(request=request)
+        bundle.data['objects'] = []
+        for category in parent_objs:
+            self.add_info(request, bundle.data['objects'], category)
+        return self.create_response(request, bundle)
+
+        # category_id = request.GET.get('id', None)
+        # if category_id is not None:
+        #     try:
+        #         # Get question with this id.
+        #         category = Category.objects.get(pk=category_id)
+        #         articles = Article.objects.filter(
+        #             category=category.id)
+
+        #         return self.paginator(request, articles)
+        #     except Category.DoesNotExist:
+        #         raise CustomBadRequest(error_type="INVALID_DATA", error_message='Category does not exist!')
+        # else:
+        #     raise CustomBadRequest(error_type="INVALID_DATA", error_message='You must enter id of category!')
 
     def delete(self, request, **kwargs):
         """Provide api to delete category."""
