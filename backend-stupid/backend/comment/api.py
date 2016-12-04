@@ -155,21 +155,7 @@ class CommentResource(ModelResource):
 
         return data
 
-    def get_comments(self, object_content, **kwargs):
-        """Provide helper function to get all comment of object_content."""
-        contenttype_obj = ContentType.objects.get_for_model(object_content)
-        # Get all relationship question of this product
-        comments = Comment.objects.filter(
-            object_type=contenttype_obj,
-            object_id=object_content.id)
 
-        comments_bundles = []
-        for comment in comments:
-            bundle = self.build_bundle(request=kwargs['request'], obj=comment)
-            bundle = self.full_dehydrate(bundle)
-            comments_bundles.append(bundle)
-
-        return comments_bundles
 
     def update_comment(self, request, **kwargs):
         """Provide api to update a comment."""
